@@ -1,7 +1,7 @@
 package com.file.ui;
 
 import com.file.object.MonitorDataObject;
-import com.file.service.WatchService;
+import com.file.service.FileWatchService;
 import com.file.watch.MonitorScheduler;
 import com.file.watch.NetworkDirectoryMonitor;
 
@@ -28,10 +28,10 @@ public class MonitorUICreates {
 
     private MonitorScheduler scheduler;
 
-    private WatchService watchService;
+    private FileWatchService watchService;
 
 
-    public MonitorUICreates(MonitorDataObject dto, MonitorScheduler scheduler,WatchService watchService) {
+    public MonitorUICreates(MonitorDataObject dto, MonitorScheduler scheduler, FileWatchService watchService) {
         this.dto = dto;
         this.scheduler = scheduler;
         this.watchService = watchService;
@@ -154,9 +154,9 @@ public class MonitorUICreates {
     private JMenuItem createSettingMenuItem() {
 
         // 創建文本輸入框
-        JTextField folderPathTextField = new JTextField(dto.directoryMonitorPath,20);
-        JTextField fileExtensionTextField = new JTextField(dto.fileExtension,10);
-        JTextField fileNameTextField = new JTextField(dto.monitorFileName,20);
+        JTextField folderPathTextField = new JTextField(dto.getDirectoryMonitorPath(),20);
+        JTextField fileExtensionTextField = new JTextField(dto.getFileExtension(),10);
+        JTextField fileNameTextField = new JTextField(dto.getMonitorFileName(),20);
 
         // 創建標籤
         JLabel folderPathLabel = new JLabel("監控資料夾位置:");
@@ -181,7 +181,7 @@ public class MonitorUICreates {
             @Override
             public void actionPerformed(ActionEvent e) {
 
-                String beforeChangePath = dto.directoryMonitorPath;
+                String beforeChangePath = dto.getDirectoryMonitorPath();
 
                 int result = JOptionPane.showConfirmDialog(null, myPanel, "監控設定",
                         JOptionPane.OK_CANCEL_OPTION,
@@ -190,16 +190,16 @@ public class MonitorUICreates {
                 if (result == JOptionPane.OK_OPTION) {
 
                     // 獲取用戶輸入的值
-                    dto.directoryMonitorPath = folderPathTextField.getText();
-                    dto.fileExtension = fileExtensionTextField.getText();
-                    dto.monitorFileName = fileNameTextField.getText();
+                    dto.setDirectoryMonitorPath(folderPathTextField.getText());
+                    dto.setFileExtension(fileExtensionTextField.getText());
+                    dto.setMonitorFileName(fileNameTextField.getText());
 
                     logger.info("Path Is Change \n" +
                             "Before Change - " + beforeChangePath + "\n" +
-                            "After Change - " + dto.directoryMonitorPath);
+                            "After Change - " + dto.getDirectoryMonitorPath());
 
                     try {
-                        watchService.initializeFileSnapshot(dto.directoryMonitorPath);
+                        watchService.initializeFileSnapshot(dto.getDirectoryMonitorPath());
                     } catch (IOException ex) {
                         throw new RuntimeException(ex);
                     }

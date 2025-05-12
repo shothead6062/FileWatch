@@ -13,11 +13,13 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.logging.Logger;
 
-public class WatchService {
+/**
+ * Service for monitoring file changes in a directory.
+ * This class is responsible for detecting new files, modified files, and deleted files.
+ */
+public class FileWatchService {
 
-
-    private static final Logger logger = Logger.getLogger(WatchService.class.getName());
-
+    private static final Logger logger = Logger.getLogger(FileWatchService.class.getName());
 
     // 檔案快照儲存結構 (key為檔案路徑，value為上次修改時間)
     private static final Map<String, FileTime> fileTimeMap = new HashMap<>();
@@ -27,19 +29,21 @@ public class WatchService {
 
     private MonitorDataObject dto;
 
-    private TrayIcon trayIcon ;
+    private TrayIcon trayIcon;
 
-
-    public WatchService(MonitorDataObject dto) {
+    /**
+     * Constructor
+     * 
+     * @param dto the data object containing monitoring configuration
+     */
+    public FileWatchService(MonitorDataObject dto) {
         this.dto = dto;
     }
 
     /**
      * 檢查目錄中的變化
      */
-
     public void checkForChanges(String directoryMonitorPath) throws IOException {
-
 
         Path directory = Paths.get(directoryMonitorPath);
 
@@ -51,10 +55,10 @@ public class WatchService {
         // 當前檔案集合
         Set<String> currentFiles = new HashSet<>();
 
-        try (DirectoryStream<Path> stream = Files.newDirectoryStream(directory, dto.fileExtension)) {
+        try (DirectoryStream<Path> stream = Files.newDirectoryStream(directory, dto.getFileExtension())) {
             for (Path path : stream) {
                 String fileName = path.getFileName().toString();
-                if (fileName.startsWith(dto.monitorFileName)) {
+                if (fileName.startsWith(dto.getMonitorFileName())) {
                     String fullPath = path.toString();
                     currentFiles.add(fullPath);
 
@@ -125,10 +129,10 @@ public class WatchService {
 
         Path directory = Paths.get(dirPath);
         if (Files.exists(directory) && Files.isDirectory(directory)) {
-            try (DirectoryStream<Path> stream = Files.newDirectoryStream(directory, dto.fileExtension)) {
+            try (DirectoryStream<Path> stream = Files.newDirectoryStream(directory, dto.getFileExtension())) {
                 for (Path path : stream) {
                     String fileName = path.getFileName().toString();
-                    if (fileName.startsWith(dto.monitorFileName)) {
+                    if (fileName.startsWith(dto.getMonitorFileName())) {
                         FileTime lastModified = Files.getLastModifiedTime(path);
                         fileTimeMap.put(path.toString(), lastModified);
 
@@ -142,14 +146,12 @@ public class WatchService {
         }
     }
 
-
     /**
      * 獲取當前時間的格式化字串
      */
     private static String getCurrentTime() {
         return DATE_FORMAT.format(new Date());
     }
-
 
     /**
      * 格式化檔案大小
@@ -166,16 +168,22 @@ public class WatchService {
         }
     }
 
+    /**
+     * Set the tray icon for notifications
+     * 
+     * @param trayIcon the tray icon to use for notifications
+     */
+    public void setTrayIcon(TrayIcon trayIcon) {
+        this.trayIcon = trayIcon;
+    }
 
     /**
      * 顯示Windows警示視窗（同時支援對話框和系統托盤通知）
      */
     public void showWindowsAlert(final String title, final String message) {
-
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-
                 // 顯示系統托盤通知（如果可用）
                 if (trayIcon != null) {
                     trayIcon.displayMessage(title, message, TrayIcon.MessageType.WARNING);
@@ -186,5 +194,4 @@ public class WatchService {
             }
         });
     }
-
 }

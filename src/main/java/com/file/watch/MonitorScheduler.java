@@ -1,7 +1,7 @@
 package com.file.watch;
 
 import com.file.object.MonitorDataObject;
-import com.file.service.WatchService;
+import com.file.service.FileWatchService;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -21,17 +21,17 @@ public class MonitorScheduler {
 
     private MonitorDataObject dto;
 
-    private WatchService watchService;
+    private FileWatchService watchService;
 
-    public MonitorScheduler(MonitorDataObject dto, WatchService watchService) {
+    public MonitorScheduler(MonitorDataObject dto, FileWatchService watchService) {
         this.dto = dto;
         this.watchService = watchService;
     }
 
     public void startScheduled() {
 
-        logger.info("開始監控網路資料夾: " + dto.directoryMonitorPath);
-        logger.info("監控條件: 副檔名為 " + dto.fileExtension + " 且檔名以「"+ dto.monitorFileName+ "」開頭");
+        logger.info("開始監控網路資料夾: " + dto.getDirectoryMonitorPath());
+        logger.info("監控條件: 副檔名為 " + dto.getFileExtension() + " 且檔名以「"+ dto.getMonitorFileName()+ "」開頭");
         logger.info("監控頻率: 每 " + MONITOR_INTERVAL_SECONDS + " 秒檢查一次");
         logger.info("===========================================");
 
@@ -43,7 +43,7 @@ public class MonitorScheduler {
             @Override
             public void run() {
                 try {
-                    watchService.checkForChanges(dto.directoryMonitorPath);
+                    watchService.checkForChanges(dto.getDirectoryMonitorPath());
                 } catch (Exception e) {
                     logger.log(Level.WARNING, "監控過程發生錯誤", e);
                 }

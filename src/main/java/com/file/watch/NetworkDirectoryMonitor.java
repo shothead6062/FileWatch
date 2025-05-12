@@ -2,7 +2,7 @@ package com.file.watch;
 
 
 import com.file.object.MonitorDataObject;
-import com.file.service.WatchService;
+import com.file.service.FileWatchService;
 import com.file.ui.MonitorUICreates;
 
 import java.io.IOException;
@@ -35,7 +35,7 @@ public class NetworkDirectoryMonitor {
 
     private static final MonitorScheduler scheduler;
 
-    private static final WatchService watchService;
+    private static final FileWatchService watchService;
 
 
 
@@ -86,12 +86,12 @@ public class NetworkDirectoryMonitor {
 
             //init DI
             dto = new MonitorDataObject();
-            dto.directoryMonitorPath = "\\\\pf03\\核心系統盤點共用資料夾";
-            dto.monitorFileName = "差異分析訪談時間表";
-            dto.fileExtension = "*.xlsx";
+            dto.setDirectoryMonitorPath("\\\\pf03\\核心系統盤點共用資料夾");
+            dto.setMonitorFileName("差異分析訪談時間表");
+            dto.setFileExtension("*.xlsx");
 
 
-            watchService = new WatchService(dto);
+            watchService = new FileWatchService(dto);
             scheduler = new MonitorScheduler(dto,watchService);
             uiCreater = new MonitorUICreates(dto,scheduler,watchService);
 
@@ -112,7 +112,7 @@ public class NetworkDirectoryMonitor {
 
         // 初始化檔案快照
         try {
-            watchService.initializeFileSnapshot(dto.directoryMonitorPath);
+            watchService.initializeFileSnapshot(dto.getDirectoryMonitorPath());
             logger.info("初始檔案快照建立完成");
         } catch (Exception e) {
             logger.log(Level.WARNING, "建立初始檔案快照時發生錯誤", e);
